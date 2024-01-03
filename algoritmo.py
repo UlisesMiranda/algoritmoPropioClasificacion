@@ -40,10 +40,7 @@ class RedMarkovClasificacionCategorica:
             self.matriz_transicion[feature] = {}
             for clase in self.clases:
                 self.matriz_transicion[feature][clase] = {val: counts / sum(feature_counts[feature][clase].values()) for val, counts in feature_counts[feature][clase].items()}
-                
-                # self.matriz_transicion[feature][clase] = {val: counts / y_train.shape[0] for val, counts in feature_counts[feature][clase].items()}
-            # print()
-            # print(self.matriz_transicion) 
+             
 
     def predict(self, X_test):
         predictions = []
@@ -68,23 +65,23 @@ class RedMarkovClasificacionCategorica:
         return matrix
 
 
-df = pd.read_csv('monk-3-train.csv', index_col=False)
+df = pd.read_csv('mushroom.csv', index_col=False)
 print(df)
 print(df.columns)
 target_column = df.columns[-1]
 
 X, y = manage_df(df, target_column)
 
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.5)
 
 # Instanciar y ajustar el clasificador
 clf = RedMarkovClasificacionCategorica()
 clf.fit(X_train, y_train)
 
-df_test = pd.read_csv('monk-3-test.csv', index_col=False)
-target_column = df_test.columns[-1]
+# df_test = pd.read_csv('monk-3-test.csv', index_col=False)
+# target_column = df_test.columns[-1]
 
-X_test, y_test = manage_df(df_test, target_column)
+# X_test, y_test = manage_df(df_test, target_column)
 
 # Hacer predicciones
 predictions = clf.predict(X_test)
