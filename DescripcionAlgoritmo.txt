@@ -1,0 +1,130 @@
+ALGORITMO DE CLASIFICACIÓN BASADO EN REDES DE MARKOV PARA DATOS CATEGÓRICOS
+
+Mi algoritmo esta diseñado para realizar la clasificación de conjuntos de datos
+categóricos utilizando un enfoque basado en Redes de Markov. El proceso consta 
+de las siguientes etapas clave:
+
+1. BALANCEO DE CONJUNTOS DE DATOS
+
+La función create_balanced_sample se encarga de tomar el conjunto de datos y 
+generar una muestra balanceada, garantizando que todas las clases tengan una 
+representación similar.
+
+En este caso, la muestra que nos creará, contara con 500 candidatos para
+nuestros datos de entrenamiento, y el resto para nuestros datos de prueba; ambos
+conjuntos de datos seleccionados aleatoriamente.
+
+2. APRENDIZAJE DEL MODELO
+
+El modelo 'RedMarkovClasificacionCategorica' emplea un método basado en información
+mutua para seleccionar las características más relevantes del conjunto de
+entrenamiento. Posteriormente, construye una matriz de transición basada en
+las características seleccionadas y las clases objetivo. Esta matriz es utilizada
+para hacer predicciones en el conjunto de prueba.
+
+
+	2.1 INFORMACION MUTUA
+
+	El método de información mutua es una medida que cuantifica la dependencia
+	entre dos variables aleatorias. Para este caso, la utilizo para evaluar
+	la relación entre las características del conjunto de datos y las clases
+	objetivo.
+
+	Si la información mutua entre una característica y la variable objetivo es
+	alta, indica que esa característica proporciona una cantidad significativa
+	de información para predecir la clase a la que pertenece una muestra.
+
+	Matemáticamente, la información mutua entre dos variables aleatorias X e Y
+	se calcula como la diferencia entre la entropía de X y la entropía condicional
+	de X dada Y (o viceversa):
+
+	I(X;Y) = H(X) − H(X∣Y)
+
+    	I(X;Y): Información mutua entre X e Y.
+    	H(X): Entropía de X, que mide la incertidumbre asociada con la variable X.
+    	H(X∣Y): Entropía condicional de X dado Y, que mide la incertidumbre
+	restante sobre X después de conocer Y.
+	
+	En el contexto del código, se están calculando las probabilidades conjuntas,
+	marginales y la información mutua entre una característica (representada por
+	feature) y la variable objetivo (target).
+
+   	joint_prob: Representa la probabilidad conjunta P(X=xi,Y=yj),
+	es decir, la probabilidad de que la característica tome un valor xi​ y la variable 
+	objetivo tome un valor yj.
+
+    	feat_prob: Es la probabilidad marginal P(X=xi), la probabilidad de que la 
+	característica tome el valor xi​ independientemente de la variable objetivo.
+
+	target_prob: Es la probabilidad marginal P(Y=yj), la probabilidad de que la variable
+	objetivo tome el valor yj independientemente de la característica.
+
+	Una vez se calculan, se procede a obtener la relación entre relación entre
+	las probabilidades conjuntas y marginales con la expresión:
+	log2​( [P(X=xi​,Y=yj​)]/[P(X=xi​)P(Y=yj​)] ​)
+	
+	Y multiplicamos lo obtenido en nuestra relación por la probabilidad conjunta
+	[P(X=xi,Y=yj)]
+
+	Por ultimo, la suma acumulada sobre lo anterior da como resultado la información mutua
+	total entre la característica y la variable objetivo.
+
+	
+	2.2 RED DE MARKOV
+
+	En este caso, se construi una "Red de Markov" para cada característica seleccionada.
+	Esta red describe las probabilidades de transición entre los valores de una
+	característica y las clases objetivo.
+
+	Metodo FIT: 
+	Una vez realizada la selección de características relevantes y de haber previamente
+	definido cuantas características relevantes necesitamos, este método nos las devuelve
+	ordenadas descendentemente.
+
+	Con ello iniciamos con la construcción de la matriz de transición, donde pasa lo siguiente:
+		Se inicializa feature_counts para contabilizar las ocurrencias de cada valor de
+		características para cada clase.
+   		Se recorre el conjunto de entrenamiento seleccionado y se cuentan las ocurrencias
+		de cada valor de característica por clase.
+		Utilizando las cuentas, se calculan las probabilidades de transición (la
+		probabilidad de que ocurra un valor específico de la característica dado que se
+		está en una clase específica).
+		Por último, Se construye un diccionario que contiene las probabilidades de
+		transición para cada valor de característica en cada clase.
+
+
+3. PROCESO DE PREDICCIÓN
+
+Una vez que se ha construido la matriz de transición, se utiliza para realizar predicciones sobre
+nuevas muestras del conjunto de prueba.
+
+Dada una muestra del conjunto de prueba, el algoritmo evalúa las probabilidades de pertenencia a
+cada clase utilizando la matriz de transición y las características seleccionadas. La clase con
+la probabilidad más alta se predice como la clase de pertenencia para esa muestra.
+
+En este proceso, primero mientras se itera por cada instancia del conjunto de prueba
+se establece un diccionario para almacenar las probabilidades de pertenencia a cada clase posible.
+Cada clase se inicializa con una probabilidad de 1.0.
+
+Luego, para cada característica relevante en la predicción, el algoritmo consulta la matriz de
+transición previamente calculada durante el entrenamiento. Si el valor de la característica no está
+presente en la matriz de transición, se asigna una probabilidad uniforme.
+
+Entonces el algoritmo multiplica las probabilidades correspondientes a cada clase, basadas en
+las características presentes en la instancia actual. Esto se hace para cada clase posible. Así, el 
+algoritmo elige la clase con la probabilidad acumulativa más alta como la predicción para esa instancia.
+
+Todo el proceso se repite para cada instancia en el conjunto de prueba y finalmente, el 
+algoritmo devuelve una lista que contiene las clases predichas para cada una de las instancias.
+
+
+4. EVALUACION DE RESULTADOS
+
+Para terminar, se muestra la matriz de confusión para visualizar el desempeño de la clasificación
+en cada clase; además, se calculan métricas como accuracy, precision, recall y F1-Score para
+evaluar el rendimiento del modelo. Por último, se realiza el calculo del error después de la
+predicción. Lo anterior para la tarea de aprendizaje y después para la predicción con el
+conjunto de prueba. 
+
+
+
